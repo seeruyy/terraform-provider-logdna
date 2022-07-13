@@ -49,29 +49,31 @@ pipeline {
         GIT_BRANCH = "${CURRENT_BRANCH}"
         GIT_REPO = "${GIT_REPO}"
         CURRENT_REPO = GetRepoName()
+        CHANGE_FORK = "${CHANGE_FORK}"
         MAKEFLAGS='-j1'
       }
 
       steps {
         script {
-          withCredentials([
-            string(credentialsId: 'logdna-gpg-key', variable: 'GPG_KEY'),
-            string(credentialsId: 'terraform-provider-servicekey', variable: 'SERVICE_KEY'),
-            string(credentialsId: 'terraform-provider-coveralls', variable: 'COVERALLS_TOKEN'),
-            string(credentialsId: 'terraform-test-s3-bucket', variable: 'S3_BUCKET'),
-            string(credentialsId: 'terraform-test-gcs-bucket', variable: 'GCS_BUCKET'),
-            string(credentialsId: 'terraform-test-gcs-projectid', variable: 'GCS_PROJECTID')
-          ]) {
-            sh '''
-              set +x
-              echo "$GPG_KEY" > gpgkey.asc
-              make postcov
-              make test-release
-            '''
-          }
+          // withCredentials([
+          //   string(credentialsId: 'logdna-gpg-key', variable: 'GPG_KEY'),
+          //   string(credentialsId: 'terraform-provider-servicekey', variable: 'SERVICE_KEY'),
+          //   string(credentialsId: 'terraform-provider-coveralls', variable: 'COVERALLS_TOKEN'),
+          //   string(credentialsId: 'terraform-test-s3-bucket', variable: 'S3_BUCKET'),
+          //   string(credentialsId: 'terraform-test-gcs-bucket', variable: 'GCS_BUCKET'),
+          //   string(credentialsId: 'terraform-test-gcs-projectid', variable: 'GCS_PROJECTID')
+          // ]) {
+          //   sh '''
+          //     set +x
+          //     echo "$GPG_KEY" > gpgkey.asc
+          //     make postcov
+          //     make test-release
+          //   '''
+          // }
 
           if (CURRENT_REPO == GIT_REPO) {
             sh '''
+              echo "CHANGE_FORK: ${CHANGE_FORK}"
               set +x
               git checkout -b ${GIT_BRANCH} origin/${GIT_BRANCH}
               git fetch --tags
